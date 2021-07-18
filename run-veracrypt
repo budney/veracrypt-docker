@@ -1,0 +1,19 @@
+#!/bin/sh
+# This is a script that runs bash within the veracrypt
+# container, and mounts the veracrypt volume, a working
+# directory, and propagates sockets for both gpg-agent
+# and ssh-agent. It also mounts /dev/urandom as a source
+# of randomness for creating new crypted volumes.
+
+VOL=${1:-./volume.vc}
+WORK=${2:-$PWD/work}
+
+exec docker run --rm -it \
+    --name veracrypt \
+    --privileged \
+    -v /dev/urandom:/dev/urandom \
+    -v ${SSH_AUTH_SOCK}:/root/.gnupg/S.gpg-agent.ssh \
+    -v ${HOME}/.gnupg/S.gpg-agent:/root/.gnupg/S.gpg-agent \
+    -v ${VOL}:/volume \
+    -v ${WORK}:/work \
+    budney/veracrypt bash -l
